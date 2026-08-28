@@ -33,6 +33,7 @@ export function AppShell<V extends string>(props: AppShellProps<V>) {
     onLogout,
     footer,
     footerBrand = '6G-DALI',
+    build,
     contentId = 'main',
     children,
   } = props
@@ -170,6 +171,11 @@ export function AppShell<V extends string>(props: AppShellProps<V>) {
       <footer className="app-footer">
         <div className="float-end d-none d-sm-inline">{footerBrand}</div>
         {footer}
+        {build && (
+          <span className="app-footer-build" title="Build this page was served from">
+            {build}
+          </span>
+        )}
       </footer>
     </div>
   )

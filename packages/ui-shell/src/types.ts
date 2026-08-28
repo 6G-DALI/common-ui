@@ -105,6 +105,16 @@ export interface AppShellProps<V extends string = string> {
   footer?: ReactNode
   /** Right-hand footer mark. Defaults to `6G-DALI`. */
   footerBrand?: ReactNode
+  /**
+   * Build marker for the footer — the short commit SHA the bundle was built
+   * from, so a deployed page can be traced back to a commit.
+   *
+   * A prop rather than something the shell derives: the shell has no access to
+   * git, and in a container neither does the build (each app's .dockerignore
+   * excludes .git, as it should), so the value has to be threaded in from the
+   * app's own build-time configuration.
+   */
+  build?: ReactNode
   /** Target of the `.skip-to-content` link in @6g-dali/ui-theme. */
   contentId?: string
   children: ReactNode
