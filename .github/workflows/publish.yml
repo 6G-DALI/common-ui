@@ -1,0 +1,64 @@
+name: publish
+
+# Publishes both packages to GitHub Packages on a version tag.
+#
+# The two are released in lockstep — @6g-dali/ui-shell depends on an exact
+# @6g-dali/ui-theme version — so one tag covers both. Bump with:
+#
+#   npm run version:set -- 0.2.0     # rewrites both package.json files
+#   # then hand-edit the ui-theme dependency pin in packages/ui-shell
+#   git commit -am "v0.2.0" && git tag v0.2.0 && git push --follow-tags
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Required for npm publish to npm.pkg.github.com with GITHUB_TOKEN.
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          # Writes the .npmrc that points the scope at GitHub Packages.
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@6g-dali'
+
+      - run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check the tag matches the package version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          for pkg in packages/ui-theme packages/ui-shell; do
+            version=$(node -p "require('./$pkg/package.json').version")
+            if [ "$version" != "$tag" ]; then
+              echo "::error::$pkg is at $version but the tag says $tag"
+              exit 1
+            fi
+          done
+
+      - run: npm run type-check
+      - run: npm run build
+
+      # --provenance is deliberately omitted: GitHub Packages does not accept
+      # provenance attestations for npm packages.
+      - name: Publish @6g-dali/ui-theme
+        run: npm publish -w @6g-dali/ui-theme
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Second, so the ui-theme version it pins already exists in the registry.
+      - name: Publish @6g-dali/ui-shell
+        run: npm publish -w @6g-dali/ui-shell
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

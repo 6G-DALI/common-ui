@@ -1,0 +1,4 @@
+# Copy to .npmrc (gitignored) to install these packages from GitHub Packages.
+# The token needs only read:packages; classic PAT or fine-grained both work.
+@6g-dali:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}

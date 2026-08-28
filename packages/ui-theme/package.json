@@ -1,0 +1,38 @@
+{
+  "name": "@6g-dali/ui-theme",
+  "version": "0.1.0",
+  "description": "Shared CSS layer for the 6G-DALI front ends: design tokens, theme, utilities and app-shell styling. No framework dependency.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/6G-DALI/ui-shell.git",
+    "directory": "packages/ui-theme"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "exports": {
+    ".": "./index.css",
+    "./index.css": "./index.css",
+    "./tokens.css": "./tokens.css",
+    "./animations.css": "./animations.css",
+    "./theme.css": "./theme.css",
+    "./ui.css": "./ui.css",
+    "./base.css": "./base.css",
+    "./fonts.css": "./fonts.css",
+    "./shell.css": "./shell.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "*.css"
+  ],
+  "dependencies": {
+    "@fontsource/dm-sans": "^5.2.5",
+    "@fontsource/jetbrains-mono": "^5.2.5",
+    "@fontsource/space-mono": "^5.2.5"
+  }
+}

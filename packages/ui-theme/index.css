@@ -1,0 +1,21 @@
+/* The complete 6G-DALI theme layer, in dependency order.
+ *
+ * Order matters: tokens.css declares the custom properties that every later
+ * file consumes. Import this AFTER Bootstrap and AdminLTE — it is written to
+ * override them, not to be overridden.
+ *
+ *   import 'bootstrap/dist/css/bootstrap.min.css'
+ *   import 'admin-lte/dist/css/adminlte.min.css'
+ *   import '@6g-dali/ui-theme/fonts.css'
+ *   import '@6g-dali/ui-theme'          // <- this file
+ *   import './index.css'                // <- your app's own styles, last
+ *
+ * fonts.css is deliberately NOT imported here; see its header. shell.css is
+ * pulled in by @6g-dali/ui-shell's AppShell, so an app that uses the shell gets
+ * it automatically and one that does not is not paying for it.
+ */
+@import './tokens.css';
+@import './animations.css';
+@import './theme.css';
+@import './ui.css';
+@import './base.css';

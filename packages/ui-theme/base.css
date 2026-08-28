@@ -1,0 +1,48 @@
+/* Document-level resets and the elements every 6G-DALI front end renders
+   identically. Extracted verbatim from the copies that had drifted into
+   dataops-ui/src/index.css and portal-ui/src/index.css.
+
+   Consumes the custom properties declared in tokens.css, so import that first
+   (or import ./index.css, which orders the whole layer for you). */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--size-body);
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+a {
+  color: var(--accent-cyan);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Skip-to-content link (§22). Visible only on keyboard focus. */
+.skip-to-content {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 1080;
+  padding: var(--space-2) var(--space-4);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--accent-cyan);
+  border-radius: var(--radius-sm);
+}
+
+.skip-to-content:focus {
+  left: var(--space-4);
+  top: var(--space-2);
+}

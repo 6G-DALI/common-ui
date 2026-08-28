@@ -1,0 +1,216 @@
+# 6G-DALI shared UI layer
+
+The navigation bar, application frame and theme that every 6G-DALI front end
+renders identically, extracted so they exist once instead of being kept in sync
+by hand.
+
+| Package | What it is |
+| --- | --- |
+| [`@6g-dali/ui-theme`](packages/ui-theme) | Design tokens, theme, utilities, app-shell CSS. **No framework dependency** — a Vue or plain-HTML front end can take it. |
+| [`@6g-dali/ui-shell`](packages/ui-shell) | React `AppShell` (navbar, sidebar, breadcrumb, footer) plus the runtime-config and Keycloak helpers the apps agree on. |
+
+Consumers today: [`dataops-ui`](https://github.com/6G-DALI/dataops-toolstack)
+and [`portal-ui`](https://github.com/6G-DALI/portal-ui). Both previously carried
+their own copy of all of it — `theme.css`, `tokens.css`, `ui.css` and
+`animations.css` were byte-identical, and `portal-ui`'s `Layout.tsx` opened with
+a comment asking future editors to keep it "structurally identical to
+dataops-ui".
+
+## Installing in an app
+
+Both packages are published to **GitHub Packages**, so the scope needs pointing
+at that registry. In the consuming repo:
+
+```
+# .npmrc  (commit this — it carries no secret)
+@6g-dali:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
+```
+
+```
+npm i @6g-dali/ui-shell @6g-dali/ui-theme
+```
+
+> **Make the packages public.** GitHub Packages serves public npm packages
+> without authentication, which keeps `RUN npm ci` in both Dockerfiles working
+> unchanged. If they are private, every image build needs a token at build time
+> — see [Docker](#docker) below.
+
+### main.tsx
+
+```ts
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'admin-lte/dist/css/adminlte.min.css'
+import 'admin-lte/dist/js/adminlte.min.js'
+import '@6g-dali/ui-theme/fonts.css'
+import '@6g-dali/ui-theme'
+import './index.css'   // your app's own styles, last
+```
+
+The theme overrides Bootstrap and AdminLTE, so it must come after them. Your
+app's `index.css` keeps only what is genuinely its own; the resets, `body`,
+link and `.skip-to-content` rules now live in `@6g-dali/ui-theme/base.css`.
+
+### config.ts
+
+```ts
+import { resolveConfig, DALI_ENV_KEYS, type DaliBaseConfig } from '@6g-dali/ui-shell'
+
+export interface DataopsConfig extends DaliBaseConfig {
+  orchestratorUrl: string
+  catalogueBaseUrl: string
+}
+
+export const config = resolveConfig<DataopsConfig>({
+  defaults: {
+    daliUrl: '', portalUrl: '', dataspaceUrl: '', dataopsUrl: '', mlopsUrl: '',
+    authUrl: 'https://auth.dspace.sparkworks.net/auth',
+    keycloakRealm: 'dspace',
+    keycloakClientId: 'dataops-ui',
+    orchestratorUrl: '',
+    catalogueBaseUrl: '',
+  },
+  envKeys: {
+    ...DALI_ENV_KEYS,
+    orchestratorUrl: 'VITE_ORCHESTRATOR_URL',
+    catalogueBaseUrl: 'VITE_CATALOGUE_BASE_URL',
+  },
+  // Passed in, not read inside the package: `import.meta.env` is substituted by
+  // Vite in *your* source, and a pre-bundled dependency cannot count on that
+  // substitution reaching it.
+  env: import.meta.env,
+})
+```
+
+Resolution order is `window.__DALI_CONFIG__` → `import.meta.env.VITE_*` →
+defaults, with trailing slashes stripped. **One** runtime key for the whole
+suite, so a single generated `config.js` configures every front end and the
+navbar links cannot disagree between apps. `__DATAOPS_CONFIG__` and
+`__PORTAL_CONFIG__` are still read as a fallback so the apps can migrate one at
+a time; drop that once both entrypoint scripts emit `__DALI_CONFIG__`.
+
+### auth/keycloak.ts
+
+```ts
+import { createKeycloak, redirectUri } from '@6g-dali/ui-shell'
+import { config } from '../config'
+
+export { redirectUri }
+export default createKeycloak(config)
+```
+
+Each app keeps its own `init()` policy — `dataops-ui` forces
+`onLoad: 'login-required'`, the portal uses `check-sso` so its landing page
+stays public. Only the realm and IdP host are shared, which is what makes the
+single sign-on session work across the suite.
+
+### Layout.tsx
+
+`dataops-ui` — the username links out to the portal's account page, and it
+builds a multi-level breadcrumb from `dagId`/`runId`/`taskId`:
+
+```tsx
+import { AppShell, daliTools, portalAccountUrl, usernameOf } from '@6g-dali/ui-shell'
+
+<AppShell<View>
+  brand={<>6G-<span className="dali-accent">DALI</span> DataOps</>}
+  homeView="home"
+  nav={NAV_ITEMS}
+  activeView={activeTopView}
+  onNavigate={view => onNavigate(view, {})}
+  tools={daliTools(config)}
+  breadcrumbs={crumbs.map(c => ({
+    label: c.label,
+    onSelect: () => onNavigate(c.view, c.params),
+  }))}
+  username={usernameOf(keycloak)}
+  account={(url => url ? { href: url, newTab: true } : undefined)(portalAccountUrl(config.portalUrl))}
+  onLogout={() => keycloak.logout({ redirectUri: redirectUri() })}
+  footer={<strong>DataOps &mdash; Apache Airflow control plane.</strong>}
+>
+  {children}
+</AppShell>
+```
+
+`portal-ui` — the account page is one of its own views:
+
+```tsx
+<AppShell<View>
+  brand={<>6G-<span className="dali-accent">DALI</span> Portal</>}
+  homeView="overview"
+  nav={NAV_ITEMS}
+  activeView={view}
+  onNavigate={onNavigate}
+  tools={daliTools(config)}
+  breadcrumbs={view === 'overview'
+    ? [{ label: 'Overview' }]
+    : [{ label: 'Overview', onSelect: () => onNavigate('overview') }, { label: PAGE_LABEL[view] }]}
+  username={usernameOf(keycloak)}
+  account={{ onSelect: () => onNavigate('account') }}
+  onLogout={() => keycloak.logout({ redirectUri: redirectUri() })}
+  footer={<strong>Portal &mdash; entry point to the 6G-DALI data ecosystem.</strong>}
+>
+  {children}
+</AppShell>
+```
+
+Note what is *not* in the shell: `NavParams`. Each app builds its own breadcrumb
+trail and hands over ready-made click handlers, which is what lets one component
+serve a two-level portal and a five-level DAG/run/task trail.
+
+`AppShell` is generic over the app's route union, so `dataops-ui`'s `View` and
+`portal-ui`'s `View` both stay string-literal unions instead of widening to
+`string` at the boundary.
+
+## Docker
+
+Nothing changes if the packages are public. If they are private, `npm ci` inside
+the image needs a token, which means a BuildKit secret:
+
+```dockerfile
+# syntax=docker/dockerfile:1
+RUN --mount=type=secret,id=npmrc,target=/root/.npmrc npm ci
+```
+
+```yaml
+# .github/workflows/<app>.yml
+- uses: docker/build-push-action@v6
+  with:
+    secrets: |
+      npmrc=@6g-dali:registry=https://npm.pkg.github.com
+      //npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}
+```
+
+Note that `portal-ui`'s Dockerfile currently avoids BuildKit on purpose (it uses
+`RUN chmod` rather than `COPY --chmod`); adopting a build secret gives that up.
+Public packages avoid the whole question.
+
+## Developing across repos
+
+The cost of three repos instead of a workspace: every shell change is
+edit → build → tag → bump two consumers. To shorten the loop locally,
+
+```
+cd ui-shell && npm run build && npm link -w @6g-dali/ui-shell -w @6g-dali/ui-theme
+cd ../dataops-ui && npm link @6g-dali/ui-shell @6g-dali/ui-theme
+```
+
+`npm run dev -w @6g-dali/ui-shell` rebuilds on change. Undo with
+`npm unlink @6g-dali/ui-shell @6g-dali/ui-theme && npm ci`.
+
+## Releasing
+
+Both packages are versioned in lockstep — `ui-shell` pins an exact `ui-theme`
+version — so one tag releases both:
+
+```
+npm run version:set -- 0.2.0        # rewrites both package.json files
+# hand-edit the @6g-dali/ui-theme pin in packages/ui-shell/package.json
+git commit -am "v0.2.0" && git tag v0.2.0 && git push --follow-tags
+```
+
+`.github/workflows/publish.yml` refuses to publish if the tag and the package
+versions disagree.
+
+Consumers pin a caret range (`^0.2.0`) and pick changes up with a normal
+dependency bump.
