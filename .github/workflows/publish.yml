@@ -16,10 +16,16 @@ name: publish
 #   npm install --package-lock-only
 #   git commit -am "v0.2.0" && git tag v0.2.0 && git push --follow-tags
 #
-# Requires an NPM_TOKEN repository secret: an npm **Automation** token for an
-# account that owns the @6g-dali scope. It must be Automation, not Publish —
-# only Automation tokens bypass the 2FA prompt, and a Publish token fails the
-# last step with `npm error code EOTP` after provenance has already been signed.
+# Requires an NPM_TOKEN repository secret: a **Granular Access Token** with
+# read/write on the @6g-dali scope. (npm has retired the old classic
+# Automation/Publish tokens; granular ones are the only kind the UI now issues,
+# and they expire, so this secret needs rotating.)
+#
+# If a publish fails with `npm error code EOTP` — after provenance has already
+# been signed, which makes it look like a signing problem — the token is not at
+# fault: the npm account's two-factor mode is set to "authorization and writes",
+# which demands a one-time password on every publish and cannot be satisfied
+# from CI. Switch the account (and check the org) to "authorization only".
 #
 # To retry a release whose publish failed, re-run this workflow with
 # workflow_dispatch selecting the *tag* as the ref. Nothing is consumed by a

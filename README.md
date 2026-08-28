@@ -174,8 +174,12 @@ cd ../dataops-ui && npm link @6g-dali/ui-shell @6g-dali/ui-theme
 
 Both packages are versioned in lockstep — `ui-shell` pins an exact `ui-theme`
 version — so one tag releases both. Publishing needs an `NPM_TOKEN` repository
-secret: an npm **automation** token (those skip the 2FA prompt) for an account
-that owns the `@6g-dali` scope.
+secret: a **Granular Access Token** with read/write on the `@6g-dali` scope.
+
+If the publish step fails with `EOTP`, the account's two-factor mode is set to
+"authorization and writes", which requires a one-time password on every publish
+and so can never succeed from CI; set it to "authorization only" (and check the
+org's own 2FA setting, which can impose it independently).
 
 ```
 npm run version:set -- 0.2.0       # both package.json files AND the lockstep pin
