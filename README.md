@@ -1,4 +1,4 @@
-# 6G-DALI shared UI layer
+# 6G-DALI common UI
 
 The navigation bar, application frame and theme that every 6G-DALI front end
 renders identically, extracted so they exist once instead of being kept in sync
@@ -191,7 +191,7 @@ The cost of three repos instead of a workspace: every shell change is
 edit → build → tag → bump two consumers. To shorten the loop locally,
 
 ```
-cd ui-shell && npm run build && npm link -w @6g-dali/ui-shell -w @6g-dali/ui-theme
+cd common-ui && npm run build && npm link -w @6g-dali/ui-shell -w @6g-dali/ui-theme
 cd ../dataops-ui && npm link @6g-dali/ui-shell @6g-dali/ui-theme
 ```
 

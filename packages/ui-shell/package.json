@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/6G-DALI/ui-shell.git",
+    "url": "git+https://github.com/6G-DALI/common-ui.git",
     "directory": "packages/ui-shell"
   },
   "publishConfig": {
