@@ -25,7 +25,6 @@ export {
   DALI_TOOL_ENV_KEYS,
   DALI_AUTH_ENV_KEYS,
   RUNTIME_CONFIG_KEY,
-  LEGACY_RUNTIME_CONFIG_KEYS,
 } from './config'
 export type {
   DaliBaseConfig,

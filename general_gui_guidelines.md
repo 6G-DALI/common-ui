@@ -733,10 +733,17 @@ Two conventions follow from it:
 - **Renaming a key is a migration, not an edit.** When `dataops-ui` moved from
   its own `keycloakUrl`/`VITE_KEYCLOAK_URL` to the shared `authUrl`/
   `VITE_AUTH_URL`, the old name was kept as a deprecated alias that the new one
-  falls back to, and the entrypoint script emits both. Without that, upgrading
-  an image would have silently repointed the application at its compiled-in
-  default identity provider — working by luck wherever the two happened to
-  match, and wrong everywhere else.
+  fell back to, and the entrypoint script emitted both, until every deployment
+  had moved. Without that, upgrading an image would have silently repointed the
+  application at its compiled-in default identity provider — working by luck
+  wherever the two happened to match, and wrong everywhere else.
+- **Retiring a compatibility shim is also a migration.** Removing one turns a
+  working deployment into a broken one the moment its image is upgraded, and a
+  configuration that quietly falls back to defaults is the hardest kind to
+  diagnose: the application renders perfectly and points at the wrong services.
+  So a retired key is not merely deleted — its presence is detected and reported
+  on the console, naming the fix. `resolveConfig` does this for the retired
+  `__DATAOPS_CONFIG__` and `__PORTAL_CONFIG__` globals.
 
 Values are normalised on the way through: a trailing slash is stripped from
 every source, including the defaults, so callers can append paths

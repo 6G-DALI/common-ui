@@ -16,8 +16,13 @@
  * used to read their own (`__DATAOPS_CONFIG__`, `__PORTAL_CONFIG__`) while
  * agreeing on the VITE_* names underneath, which meant one deployment had to
  * write two config.js files that could silently disagree about where the
- * navbar links point. One key, one file, every front end. The legacy keys are
- * still read as a fallback so the apps can migrate one at a time.
+ * navbar links point. One key, one file, every front end.
+ *
+ * Those per-app keys are no longer read. A deployment that mounts its own
+ * pre-unification config.js would otherwise lose every value at once and fall
+ * back to the compiled-in defaults without saying so, which for the identity
+ * provider means an app that looks configured and is not — so their presence is
+ * reported loudly instead. See `warnAboutLegacyConfig`.
  */
 
 /** The shared tool suite. Same names in every front end. */
@@ -63,9 +68,35 @@ export const DALI_ENV_KEYS: Record<keyof DaliBaseConfig, string> = {
 
 export const RUNTIME_CONFIG_KEY = '__DALI_CONFIG__'
 
-/** Read while the apps migrate off their per-app keys; drop once both are on
- *  a `__DALI_CONFIG__` config.js. */
-export const LEGACY_RUNTIME_CONFIG_KEYS = ['__DATAOPS_CONFIG__', '__PORTAL_CONFIG__']
+/**
+ * Per-app globals that predate the unified key. No longer read — listed only so
+ * that a config.js still using one is reported rather than silently ignored.
+ */
+const RETIRED_RUNTIME_CONFIG_KEYS = ['__DATAOPS_CONFIG__', '__PORTAL_CONFIG__']
+
+let warned = false
+
+/**
+ * Warns once if a retired config global is present.
+ *
+ * Removing a compatibility shim turns a working deployment into a broken one at
+ * the moment its image is upgraded, and a configuration that silently falls back
+ * to defaults is the hardest kind to diagnose — the app renders, it just points
+ * at the wrong services. A console error costs nothing and names the fix.
+ */
+function warnAboutLegacyConfig(): void {
+  if (warned || typeof window === 'undefined') return
+  const w = window as unknown as Record<string, unknown>
+  const found = RETIRED_RUNTIME_CONFIG_KEYS.filter(k => w[k])
+  if (found.length === 0) return
+  warned = true
+  console.error(
+    `[6g-dali] Ignoring ${found.join(' and ')}: 6G-DALI front ends read `
+    + `window.${RUNTIME_CONFIG_KEY} only. This deployment is running on `
+    + 'compiled-in defaults. Regenerate public/config.js from the container '
+    + `entrypoint, or rename the object in the mounted file to ${RUNTIME_CONFIG_KEY}.`,
+  )
+}
 
 type RuntimeBag = Record<string, string | undefined> | undefined
 
@@ -98,7 +129,7 @@ export interface ResolveConfigOptions<T extends Record<keyof T, string>> {
    * cannot rely on that substitution reaching it.
    */
   env?: Record<string, unknown>
-  /** Override for tests, or to drop the legacy keys once migration is done. */
+  /** Override for tests, or to read an additional global. */
   runtimeKeys?: string[]
 }
 
@@ -116,8 +147,10 @@ export function resolveConfig<T extends Record<keyof T, string>>(
     defaults,
     envKeys,
     env,
-    runtimeKeys = [RUNTIME_CONFIG_KEY, ...LEGACY_RUNTIME_CONFIG_KEYS],
+    runtimeKeys = [RUNTIME_CONFIG_KEY],
   } = options
+
+  warnAboutLegacyConfig()
 
   const out = {} as T
   for (const key of Object.keys(defaults) as (keyof T)[]) {
