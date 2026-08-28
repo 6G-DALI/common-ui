@@ -259,27 +259,21 @@ a:hover {
   box-shadow: none;
 }
 
-thead th {
-  background: var(--bg-elevated);
-  color: var(--text-secondary);
-  border-bottom: 1px solid var(--border-bright);
-  font-family: var(--font-body);
-  font-size: var(--size-label);
-  font-weight: 500;
-}
-
-tbody tr {
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-tbody tr:hover {
-  background: var(--bg-elevated);
-}
-
-tbody td {
-  color: var(--text-primary);
-}
-
+/* Tables are themed ONLY through Bootstrap's own custom properties.
+ *
+ * This block used to also style bare `thead th`, `tbody tr`, `tbody tr:hover`
+ * and `tbody td`. Those reached into every table in every consuming app,
+ * whether or not it wanted the theme's look, and — being element selectors —
+ * which one won came down to stylesheet order rather than intent. dataops-ui
+ * hit exactly that: its light tables silently took this dark palette's
+ * `--bg-elevated` (#1a2035) as their row-hover colour whenever the theme
+ * happened to load last, and the mismatch with Bootstrap's instantly-painted
+ * cell overlay showed up as a flicker when the pointer left a row.
+ *
+ * Custom properties avoid the whole class of problem: Bootstrap applies them at
+ * its own specificity, they only affect elements that opted in with `.table`,
+ * and an app can override any of them without a selector war. Anything the
+ * theme cannot express this way belongs in the app, not here. */
 .table {
   --bs-table-bg: transparent;
   --bs-table-color: var(--text-primary);

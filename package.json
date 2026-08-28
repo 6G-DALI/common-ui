@@ -1,6 +1,6 @@
 {
   "name": "@6g-dali/common-ui",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "private": true,
   "description": "Shared front-end layer for the 6G-DALI UIs.",
   "type": "module",
