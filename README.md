@@ -207,13 +207,14 @@ Both packages are versioned in lockstep — `ui-shell` pins an exact `ui-theme`
 version — so one tag releases both:
 
 ```
-npm run version:set -- 0.2.0        # rewrites both package.json files
-# hand-edit the @6g-dali/ui-theme pin in packages/ui-shell/package.json
+npm run version:set -- 0.2.0       # both package.json files AND the lockstep pin
+npm install --package-lock-only
 git commit -am "v0.2.0" && git tag v0.2.0 && git push --follow-tags
 ```
 
 `.github/workflows/publish.yml` refuses to publish if the tag and the package
-versions disagree.
+versions disagree — which is what silently stopped v0.1.1, tagged while both
+packages still said 0.1.0. Run `version:set` before tagging, never after.
 
 Consumers pin a caret range (`^0.2.0`) and pick changes up with a normal
 dependency bump.

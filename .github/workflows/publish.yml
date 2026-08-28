@@ -5,8 +5,8 @@ name: publish
 # The two are released in lockstep — @6g-dali/ui-shell depends on an exact
 # @6g-dali/ui-theme version — so one tag covers both. Bump with:
 #
-#   npm run version:set -- 0.2.0     # rewrites both package.json files
-#   # then hand-edit the ui-theme dependency pin in packages/ui-shell
+#   npm run version:set -- 0.2.0     # both package.json files AND the pin
+#   npm install --package-lock-only
 #   git commit -am "v0.2.0" && git tag v0.2.0 && git push --follow-tags
 
 on:
