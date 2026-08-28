@@ -85,7 +85,7 @@ function stripTrailingSlash(url: string): string {
   return url.endsWith('/') && url.length > 1 ? url.slice(0, -1) : url
 }
 
-export interface ResolveConfigOptions<T extends Record<string, string>> {
+export interface ResolveConfigOptions<T extends Record<keyof T, string>> {
   /** Per-app fallbacks. Also fixes the shape of the returned object. */
   defaults: T
   /** `VITE_*` name for each key. */
@@ -109,7 +109,7 @@ export interface ResolveConfigOptions<T extends Record<string, string>> {
  * the hand-written versions normalised only the first two sources, so a default
  * ending in `/` behaved differently from the same value supplied by env.
  */
-export function resolveConfig<T extends Record<string, string>>(
+export function resolveConfig<T extends Record<keyof T, string>>(
   options: ResolveConfigOptions<T>,
 ): T {
   const {
