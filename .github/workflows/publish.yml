@@ -14,7 +14,10 @@ name: publish
 #
 #   npm run version:set -- 0.2.0     # both package.json files AND the pin
 #   npm install --package-lock-only
-#   git commit -am "v0.2.0" && git tag v0.2.0 && git push --follow-tags
+#   git commit -am "v0.2.0" && git tag v0.2.0
+#   git push origin main v0.2.0   # --follow-tags pushes annotated tags only,
+#                                 # so it would push main and silently skip
+#                                 # the tag, and nothing would publish.
 #
 # Requires an NPM_TOKEN repository secret: a **Granular Access Token** with
 # read/write on the @6g-dali scope. (npm has retired the old classic

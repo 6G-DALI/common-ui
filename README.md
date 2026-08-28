@@ -184,7 +184,8 @@ org's own 2FA setting, which can impose it independently).
 ```
 npm run version:set -- 0.2.0       # both package.json files AND the lockstep pin
 npm install --package-lock-only
-git commit -am "v0.2.0" && git tag v0.2.0 && git push --follow-tags
+git commit -am "v0.2.0" && git tag v0.2.0
+git push origin main v0.2.0   # not --follow-tags: it pushes annotated tags only
 ```
 
 `.github/workflows/publish.yml` refuses to publish if the tag and the package
