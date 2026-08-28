@@ -1,6 +1,13 @@
 name: publish
 
-# Publishes both packages to GitHub Packages on a version tag.
+# Publishes both packages to npmjs.com on a version tag.
+#
+# npmjs rather than GitHub Packages: the npm registry on GitHub Packages
+# authenticates every read with no anonymous tier, even for public packages, so
+# every consumer — each Dockerfile, each developer machine, each CI job — would
+# need a live token forever. npmjs serves public packages anonymously, so
+# `npm ci` works unauthenticated everywhere and only this workflow holds a
+# credential.
 #
 # The two are released in lockstep — @6g-dali/ui-shell depends on an exact
 # @6g-dali/ui-theme version — so one tag covers both. Bump with:
@@ -8,6 +15,10 @@ name: publish
 #   npm run version:set -- 0.2.0     # both package.json files AND the pin
 #   npm install --package-lock-only
 #   git commit -am "v0.2.0" && git tag v0.2.0 && git push --follow-tags
+#
+# Requires an NPM_TOKEN repository secret: an npm *automation* token (they carry
+# no 2FA prompt, unlike a publish token) for an account that owns the @6g-dali
+# scope.
 
 on:
   push:
@@ -20,21 +31,21 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      # Required for npm publish to npm.pkg.github.com with GITHUB_TOKEN.
-      packages: write
+      # Required by `npm publish --provenance`, which signs the package with a
+      # GitHub OIDC token so npmjs can show a verified link back to this
+      # workflow run and commit.
+      id-token: write
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          # Writes the .npmrc that points the scope at GitHub Packages.
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@6g-dali'
+          # Writes the .npmrc that points npm at the public registry and picks
+          # up NODE_AUTH_TOKEN.
+          registry-url: 'https://registry.npmjs.org'
 
       - run: npm ci
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check the tag matches the package version
         run: |
@@ -50,15 +61,15 @@ jobs:
       - run: npm run type-check
       - run: npm run build
 
-      # --provenance is deliberately omitted: GitHub Packages does not accept
-      # provenance attestations for npm packages.
+      # --access public comes from each package's publishConfig; scoped packages
+      # are otherwise published restricted and fail on a free account.
       - name: Publish @6g-dali/ui-theme
-        run: npm publish -w @6g-dali/ui-theme
+        run: npm publish -w @6g-dali/ui-theme --provenance
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # Second, so the ui-theme version it pins already exists in the registry.
       - name: Publish @6g-dali/ui-shell
-        run: npm publish -w @6g-dali/ui-shell
+        run: npm publish -w @6g-dali/ui-shell --provenance
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -18,24 +18,18 @@ dataops-ui".
 
 ## Installing in an app
 
-Both packages are published to **GitHub Packages**, so the scope needs pointing
-at that registry. In the consuming repo:
-
-```
-# .npmrc  (commit this — it carries no secret)
-@6g-dali:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
-```
-
 ```
 npm i @6g-dali/ui-shell @6g-dali/ui-theme
 ```
 
-> **A token is required even if the packages are public.** Unlike ghcr.io, which
-> serves public images anonymously, the GitHub Packages *npm* registry
-> authenticates every read. Repository visibility changes who may install, not
-> whether credentials are needed — so both Dockerfiles need a build-time token
-> either way. See [Docker](#docker) below.
+That is the whole setup — no `.npmrc`, no token. Both packages are public on
+**npmjs.com**.
+
+> **Why not GitHub Packages?** Its npm registry authenticates every read, with
+> no anonymous tier even for public packages (ghcr.io is the exception, not the
+> rule). That would put a live token in both Dockerfiles, in every CI job and on
+> every developer machine, permanently. npmjs serves public packages
+> anonymously, so only the publish workflow holds a credential.
 
 ### main.tsx
 
@@ -163,31 +157,6 @@ serve a two-level portal and a five-level DAG/run/task trail.
 `portal-ui`'s `View` both stay string-literal unions instead of widening to
 `string` at the boundary.
 
-## Docker
-
-`npm ci` inside the image has to authenticate against GitHub Packages whatever
-the repository's visibility, which means a BuildKit secret:
-
-```dockerfile
-# syntax=docker/dockerfile:1
-RUN --mount=type=secret,id=npmrc,target=/root/.npmrc npm ci
-```
-
-```yaml
-# .github/workflows/<app>.yml
-- uses: docker/build-push-action@v6
-  with:
-    secrets: |
-      npmrc=@6g-dali:registry=https://npm.pkg.github.com
-      //npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}
-```
-
-Note that `portal-ui`'s Dockerfile currently avoids BuildKit on purpose (it uses
-`RUN chmod` rather than `COPY --chmod`); a build secret gives that up. The
-alternative, if an auth-free `npm ci` matters more than staying on GitHub
-Packages, is publishing to npmjs.com instead — public scoped packages are free
-there and install anonymously.
-
 ## Developing across repos
 
 The cost of three repos instead of a workspace: every shell change is
@@ -204,7 +173,9 @@ cd ../dataops-ui && npm link @6g-dali/ui-shell @6g-dali/ui-theme
 ## Releasing
 
 Both packages are versioned in lockstep — `ui-shell` pins an exact `ui-theme`
-version — so one tag releases both:
+version — so one tag releases both. Publishing needs an `NPM_TOKEN` repository
+secret: an npm **automation** token (those skip the 2FA prompt) for an account
+that owns the `@6g-dali` scope.
 
 ```
 npm run version:set -- 0.2.0       # both package.json files AND the lockstep pin

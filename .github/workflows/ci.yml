@@ -10,19 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      # `npm ci` resolves the workspace-local @6g-dali/ui-theme without hitting
-      # the registry, but keep the scope configured so a future third-party
-      # @6g-dali dependency does not break the build.
-      packages: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@6g-dali'
+      # No registry credentials needed: @6g-dali/ui-theme resolves to the
+      # workspace copy, and everything else is public on npmjs.
       - run: npm ci
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run type-check
       - run: npm run build
