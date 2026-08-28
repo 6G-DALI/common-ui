@@ -31,10 +31,11 @@ at that registry. In the consuming repo:
 npm i @6g-dali/ui-shell @6g-dali/ui-theme
 ```
 
-> **Make the packages public.** GitHub Packages serves public npm packages
-> without authentication, which keeps `RUN npm ci` in both Dockerfiles working
-> unchanged. If they are private, every image build needs a token at build time
-> — see [Docker](#docker) below.
+> **A token is required even if the packages are public.** Unlike ghcr.io, which
+> serves public images anonymously, the GitHub Packages *npm* registry
+> authenticates every read. Repository visibility changes who may install, not
+> whether credentials are needed — so both Dockerfiles need a build-time token
+> either way. See [Docker](#docker) below.
 
 ### main.tsx
 
@@ -164,8 +165,8 @@ serve a two-level portal and a five-level DAG/run/task trail.
 
 ## Docker
 
-Nothing changes if the packages are public. If they are private, `npm ci` inside
-the image needs a token, which means a BuildKit secret:
+`npm ci` inside the image has to authenticate against GitHub Packages whatever
+the repository's visibility, which means a BuildKit secret:
 
 ```dockerfile
 # syntax=docker/dockerfile:1
@@ -182,8 +183,10 @@ RUN --mount=type=secret,id=npmrc,target=/root/.npmrc npm ci
 ```
 
 Note that `portal-ui`'s Dockerfile currently avoids BuildKit on purpose (it uses
-`RUN chmod` rather than `COPY --chmod`); adopting a build secret gives that up.
-Public packages avoid the whole question.
+`RUN chmod` rather than `COPY --chmod`); a build secret gives that up. The
+alternative, if an auth-free `npm ci` matters more than staying on GitHub
+Packages, is publishing to npmjs.com instead — public scoped packages are free
+there and install anonymously.
 
 ## Developing across repos
 
