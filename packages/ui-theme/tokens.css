@@ -28,10 +28,22 @@
   /* ---- Accents ---- */
   --accent-cyan: #00d4ff;
   --accent-cyan-dim: #004d5e;
+  --accent-cyan-bright: #6ee7ff;
   --accent-green: #00e5a0;
   --accent-amber: #ffb340;
   --accent-red: #ff4d6a;
   --accent-purple: #a78bfa;
+
+  /* ---- Accent/surface RGB triples, for rgba() tints that must re-tint with
+     the theme (badges, alerts, glows) instead of staying pinned to dark
+     values. Keep each in sync with its hex sibling above/below. ---- */
+  --bg-surface-rgb: 17, 22, 32;
+  --text-secondary-rgb: 122, 144, 176;
+  --accent-cyan-rgb: 0, 212, 255;
+  --accent-green-rgb: 0, 229, 160;
+  --accent-amber-rgb: 255, 179, 64;
+  --accent-red-rgb: 255, 77, 106;
+  --accent-purple-rgb: 167, 139, 250;
 
   /* ---- Gradients ---- */
   --gradient-hero: linear-gradient(135deg, #0a0d12 0%, #0f1a2e 50%, #0a1520 100%);
@@ -86,6 +98,64 @@
 }
 
 /* -------------------------------------------------------------------------
+   Light variant — "Mission Control · Daylight".
+   Dark is the implicit default (the bare :root above); this overrides only
+   colour, surface and shadow tokens for `[data-theme="light"]`. Radius,
+   motion and typography are shape, not colour, and stay identical in both
+   themes. Accent hues are darkened slightly from their dark-mode values to
+   hold WCAG AA text contrast against white surfaces (§22).
+
+   Specificity note: `:root[data-theme="light"]` is (0,2,0), which beats the
+   bare `:root` block above (0,1,0) regardless of source order, so this is
+   safe to keep appended here rather than interleaved.
+   ------------------------------------------------------------------------- */
+
+:root[data-theme='light'] {
+  /* ---- Backgrounds ---- */
+  --bg-base: #f4f6f9;
+  --bg-surface: #ffffff;
+  --bg-elevated: #eef2f7;
+  --bg-overlay: rgba(244, 246, 249, 0.86);
+
+  /* ---- Borders ---- */
+  --border: #dde3ec;
+  --border-bright: #b9c6db;
+  --border-subtle: rgba(15, 23, 42, 0.08);
+
+  /* ---- Text ---- */
+  --text-primary: #10151f;
+  --text-secondary: #4c5870;
+  --text-muted: #8996ac;
+  --text-inverse: #f4f6f9;
+
+  /* ---- Accents (darkened for contrast on light surfaces) ---- */
+  --accent-cyan: #0089ab;
+  --accent-cyan-dim: #bfe9f2;
+  --accent-cyan-bright: #17a8cc;
+  --accent-green: #0a8f5c;
+  --accent-amber: #a35d00;
+  --accent-red: #d1293f;
+  --accent-purple: #6d4fd1;
+
+  /* ---- Accent/surface RGB triples — kept in sync with the hex values above. ---- */
+  --bg-surface-rgb: 255, 255, 255;
+  --text-secondary-rgb: 76, 88, 112;
+  --accent-cyan-rgb: 0, 137, 171;
+  --accent-green-rgb: 10, 143, 92;
+  --accent-amber-rgb: 163, 93, 0;
+  --accent-red-rgb: 209, 41, 63;
+  --accent-purple-rgb: 109, 79, 209;
+
+  /* ---- Gradients ---- */
+  --gradient-hero: linear-gradient(135deg, #f4f6f9 0%, #e7edf7 50%, #eef4f8 100%);
+
+  /* ---- Shadows ---- */
+  --shadow-panel: 0 12px 32px rgba(15, 23, 42, 0.08);
+  --shadow-focus: 0 0 0 3px rgba(0, 137, 171, 0.18);
+  --shadow-live: 0 0 18px rgba(0, 137, 171, 0.18);
+}
+
+/* -------------------------------------------------------------------------
    Legacy bridge.
    The existing component stylesheets are already driven by a --dali-* palette
    declared in App.css. Remapping those names here re-themes all ~1,100 lines
@@ -129,18 +199,18 @@
   --bs-border-radius-lg: var(--radius-lg);
 
   --bs-primary: var(--accent-cyan);
-  --bs-primary-rgb: 0, 212, 255;
+  --bs-primary-rgb: var(--accent-cyan-rgb);
   --bs-success: var(--accent-green);
-  --bs-success-rgb: 0, 229, 160;
+  --bs-success-rgb: var(--accent-green-rgb);
   --bs-warning: var(--accent-amber);
-  --bs-warning-rgb: 255, 179, 64;
+  --bs-warning-rgb: var(--accent-amber-rgb);
   --bs-danger: var(--accent-red);
-  --bs-danger-rgb: 255, 77, 106;
+  --bs-danger-rgb: var(--accent-red-rgb);
   --bs-info: var(--accent-purple);
-  --bs-info-rgb: 167, 139, 250;
+  --bs-info-rgb: var(--accent-purple-rgb);
 
   --bs-link-color: var(--accent-cyan);
-  --bs-link-hover-color: #6ee7ff;
+  --bs-link-hover-color: var(--accent-cyan-bright);
   --bs-code-color: var(--accent-purple);
 
   --bs-secondary-bg: var(--bg-surface);

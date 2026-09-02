@@ -26,10 +26,16 @@
     "./base.css": "./base.css",
     "./fonts.css": "./fonts.css",
     "./shell.css": "./shell.css",
+    "./theme.js": {
+      "types": "./theme.d.ts",
+      "default": "./theme.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
-    "*.css"
+    "*.css",
+    "theme.js",
+    "theme.d.ts"
   ],
   "dependencies": {
     "@fontsource/dm-sans": "^5.2.5",

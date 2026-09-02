@@ -1,5 +1,6 @@
 import { FiLogOut, FiMenu } from 'react-icons/fi'
 import { ExternalToolLinks } from './ExternalToolLinks'
+import { ThemeToggle } from './ThemeToggle'
 import { UserLabel } from './UserLabel'
 import { toggleSidebar } from '../sidebar'
 import { isNavHeading, isNavItem } from '../types'
@@ -67,6 +68,9 @@ export function AppShell<V extends string>(props: AppShellProps<V>) {
           </ul>
           <ul className="navbar-nav ms-auto align-items-center">
             <ExternalToolLinks tools={tools} />
+            <li className="nav-item">
+              <ThemeToggle />
+            </li>
             {username && (
               <li className="nav-item">
                 <UserLabel username={username} account={account} />
@@ -89,7 +93,11 @@ export function AppShell<V extends string>(props: AppShellProps<V>) {
       </nav>
 
       {/* Sidebar */}
-      <aside className="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+      {/* No data-bs-theme="dark": AdminLTE's own dark-mode CSS variables
+          (--lte-sidebar-color etc.) would override our light/dark tokens
+          regardless of which theme is active — theme.css redefines those
+          variables directly instead, so this stays correct in both. */}
+      <aside className="app-sidebar bg-body-secondary shadow">
         <div className="sidebar-brand">
           <a
             href={brandView ? `#/${brandView}` : '#'}

@@ -22,19 +22,22 @@
 
 /* Text links out to the sibling 6G-DALI tools. Sized down from the navbar's
    icon-button default, which is set for 1.2rem glyphs and would make these
-   dominate the bar. */
+   dominate the bar. Color here duplicates theme.css's `.app-header
+   .external-tool-link` on purpose: shell.css and theme.css load in an order
+   the app's bundler decides, so both copies stay in sync with the tokens
+   rather than one silently winning with stale hardcoded colors. */
 .app-header .external-tool-link {
   font-size: 0.85rem;
   padding: 0.35rem 0.6rem;
   border-radius: 4px;
-  color: #5a6a84;
+  color: var(--text-secondary);
   white-space: nowrap;
 }
 
 .app-header .external-tool-link:hover,
 .app-header .external-tool-link:focus-visible {
-  color: var(--dali-navy, #1b2a4a);
-  background: rgba(0, 0, 0, 0.05);
+  color: var(--accent-cyan);
+  background: var(--bg-elevated);
 }
 
 /* Separates the tool links from the user/logout controls beside them. */
@@ -94,4 +97,76 @@
   font-size: var(--size-caption);
   color: var(--text-muted);
   user-select: all; /* one click selects the whole SHA for pasting into an issue */
+}
+
+/* ── Theme toggle ─────────────────────────────────────────────
+   The dark/light switch, shared by every front end (icon + track/thumb —
+   originally vanilla's DarkModeToggle.vue, moved here so React's and Vue's
+   versions render identically instead of drifting). Pure CSS classes, no
+   framework dependency — pair with @6g-dali/ui-theme/theme.js for the
+   toggle logic. Markup:
+
+   <label class="dali-theme-toggle">
+     <svg class="dali-theme-toggle-icon"> ... sun or moon path ... </svg>
+     <span class="dali-theme-toggle-track">
+       <input type="checkbox" class="dali-theme-toggle-input" ...>
+       <span class="dali-theme-toggle-thumb"></span>
+     </span>
+   </label>
+   ------------------------------------------------------------- */
+
+.dali-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.dali-theme-toggle-icon {
+  width: 1.05rem;
+  height: 1.05rem;
+  flex-shrink: 0;
+}
+
+.dali-theme-toggle-track {
+  position: relative;
+  display: inline-block;
+  width: 1.75rem;
+  height: 1rem;
+  border-radius: 999px;
+  background: var(--border-bright);
+  transition: background var(--duration-normal) var(--ease-standard);
+}
+
+.dali-theme-toggle-track:has(.dali-theme-toggle-input:checked) {
+  background: var(--accent-cyan);
+}
+
+.dali-theme-toggle-input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.dali-theme-toggle-thumb {
+  position: absolute;
+  top: 0.125rem;
+  left: 0.125rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  transition: transform var(--duration-normal) var(--ease-standard);
+  pointer-events: none;
+}
+
+.dali-theme-toggle-input:checked ~ .dali-theme-toggle-thumb {
+  transform: translateX(0.75rem);
+}
+
+.dali-theme-toggle-input:focus-visible ~ .dali-theme-toggle-thumb {
+  box-shadow: var(--shadow-focus);
 }

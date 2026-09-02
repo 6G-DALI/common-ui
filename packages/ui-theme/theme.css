@@ -15,6 +15,15 @@ html {
   color-scheme: dark;
 }
 
+/* `data-theme` is set on <html> itself (see @6g-dali/ui-theme/theme.js), so
+   this is an attribute selector on the same element, not a descendant one.
+   Otherwise native widgets (scrollbars, checkboxes, date pickers) keep
+   rendering with the dark UA palette even though every themed surface has
+   switched to light. */
+html[data-theme='light'] {
+  color-scheme: light;
+}
+
 body {
   background: var(--bg-base);
   color: var(--text-primary);
@@ -58,7 +67,7 @@ code, pre, kbd, samp,
 
 code {
   color: var(--accent-purple);
-  background: rgba(167, 139, 250, 0.08);
+  background: rgba(var(--accent-purple-rgb), 0.08);
   padding: 1px 5px;
   border-radius: var(--radius-sm);
 }
@@ -73,7 +82,7 @@ a {
 }
 
 a:hover {
-  color: #6ee7ff;
+  color: var(--accent-cyan-bright);
 }
 
 /* -------------------------------------------------------------------------
@@ -82,7 +91,7 @@ a:hover {
 
 .card,
 .panel {
-  background: rgba(17, 22, 32, 0.88);
+  background: rgba(var(--bg-surface-rgb), 0.88);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-panel);
@@ -114,13 +123,13 @@ a:hover {
 }
 
 .alert-danger {
-  background: rgba(255, 77, 106, 0.1);
+  background: rgba(var(--accent-red-rgb), 0.1);
   border-color: var(--accent-red);
   color: var(--accent-red);
 }
 
 .alert-success {
-  background: rgba(0, 229, 160, 0.1);
+  background: rgba(var(--accent-green-rgb), 0.1);
   border-color: var(--accent-green);
   color: var(--accent-green);
 }
@@ -133,6 +142,31 @@ a:hover {
 .sidebar-wrapper {
   background: var(--bg-surface) !important;
   border-right: 1px solid var(--border);
+}
+
+/* AdminLTE's own sidebar rules (`.sidebar-wrapper .sidebar-menu > .nav-item >
+   .nav-link[.active]`) reach specificity (0,3,0)–(0,5,0) — well past what a
+   `.app-sidebar .nav-link` override here can out-specificity. Rather than
+   fight that, redefine the CSS *variables* those rules consume: whichever
+   selector's `color`/`background-color` declaration wins, it resolves to
+   these tokens either way. This also removes the need for the sidebar's
+   `data-bs-theme="dark"` (deliberately not set in AppShell.tsx any more) —
+   AdminLTE's `[data-bs-theme=dark] .app-sidebar` block set its own hardcoded
+   dark values here regardless of our theme, which is exactly what produced
+   pale, low-contrast sidebar text once the light theme existed. */
+.app-sidebar {
+  --lte-sidebar-color: var(--text-secondary);
+  --lte-sidebar-hover-color: var(--text-primary);
+  --lte-sidebar-hover-bg: var(--bg-elevated);
+  --lte-sidebar-active-color: var(--text-primary);
+  --lte-sidebar-menu-active-color: var(--text-primary);
+  --lte-sidebar-menu-active-bg: var(--bg-elevated);
+  --lte-sidebar-submenu-color: var(--text-secondary);
+  --lte-sidebar-submenu-hover-color: var(--text-primary);
+  --lte-sidebar-submenu-hover-bg: var(--bg-elevated);
+  --lte-sidebar-submenu-active-color: var(--text-primary);
+  --lte-sidebar-submenu-active-bg: var(--bg-elevated);
+  --lte-sidebar-header-color: var(--text-muted);
 }
 
 .app-sidebar .nav-link {
@@ -168,9 +202,9 @@ a:hover {
   color: var(--text-primary);
 }
 
-.dali-accent {
-  color: var(--accent-cyan);
-}
+/* .dali-accent (the "DALI" wordmark's brand orange) is defined once, in
+   shell.css — it was accidentally duplicated here with the wrong color
+   (accent-cyan), which raced shell.css's rule depending on load order. */
 
 .app-header,
 .header {
@@ -189,10 +223,9 @@ a:hover {
   color: var(--accent-cyan);
 }
 
-/* Links out to the sibling DALI tools. Layout.css styles these for the light
-   theme: a #5a6a84 label, a hover colour of --dali-navy (which the token bridge
-   now resolves to a *surface*, i.e. near-black on near-black) and an
-   rgba(0,0,0,.05) hover fill that is invisible on a dark background. */
+/* Links out to the sibling DALI tools — duplicated in shell.css with the same
+   token-based colors (see its comment) since load order between the two
+   files isn't guaranteed. */
 .app-header .external-tool-link {
   color: var(--text-secondary);
 }
@@ -379,8 +412,8 @@ select {
 
 .btn-primary:hover,
 .btn-primary:focus {
-  background: #6ee7ff;
-  border-color: #6ee7ff;
+  background: var(--accent-cyan-bright);
+  border-color: var(--accent-cyan-bright);
   color: var(--text-inverse);
 }
 
@@ -450,33 +483,33 @@ select {
 }
 
 .badge.text-bg-success {
-  background-color: rgba(0, 229, 160, 0.1) !important;
-  border-color: rgba(0, 229, 160, 0.35);
+  background-color: rgba(var(--accent-green-rgb), 0.1) !important;
+  border-color: rgba(var(--accent-green-rgb), 0.35);
   color: var(--accent-green) !important;
 }
 
 .badge.text-bg-danger {
-  background-color: rgba(255, 77, 106, 0.1) !important;
-  border-color: rgba(255, 77, 106, 0.35);
+  background-color: rgba(var(--accent-red-rgb), 0.1) !important;
+  border-color: rgba(var(--accent-red-rgb), 0.35);
   color: var(--accent-red) !important;
 }
 
 /* `running` maps to text-bg-primary in StateBadge.tsx. */
 .badge.text-bg-primary {
-  background-color: rgba(0, 212, 255, 0.1) !important;
-  border-color: rgba(0, 212, 255, 0.35);
+  background-color: rgba(var(--accent-cyan-rgb), 0.1) !important;
+  border-color: rgba(var(--accent-cyan-rgb), 0.35);
   color: var(--accent-cyan) !important;
 }
 
 .badge.text-bg-warning {
-  background-color: rgba(255, 179, 64, 0.1) !important;
-  border-color: rgba(255, 179, 64, 0.35);
+  background-color: rgba(var(--accent-amber-rgb), 0.1) !important;
+  border-color: rgba(var(--accent-amber-rgb), 0.35);
   color: var(--accent-amber) !important;
 }
 
 .badge.text-bg-info {
-  background-color: rgba(167, 139, 250, 0.1) !important;
-  border-color: rgba(167, 139, 250, 0.3);
+  background-color: rgba(var(--accent-purple-rgb), 0.1) !important;
+  border-color: rgba(var(--accent-purple-rgb), 0.3);
   color: var(--accent-purple) !important;
 }
 
@@ -573,11 +606,11 @@ select {
 
 .icon-btn.remove {
   color: var(--accent-red);
-  border-color: rgba(255, 77, 106, 0.35);
+  border-color: rgba(var(--accent-red-rgb), 0.35);
 }
 
 .icon-btn.remove:hover {
-  background: rgba(255, 77, 106, 0.12);
+  background: rgba(var(--accent-red-rgb), 0.12);
   border-color: var(--accent-red);
   color: var(--accent-red);
 }
@@ -616,7 +649,7 @@ select {
 }
 
 .wizard-progress-step.done .wizard-progress-num {
-  background: rgba(0, 229, 160, 0.15);
+  background: rgba(var(--accent-green-rgb), 0.15);
   color: var(--accent-green);
 }
 
@@ -643,12 +676,12 @@ select {
 }
 
 .timeline-log-panel .log-level-warning {
-  background: rgba(255, 179, 64, 0.1);
+  background: rgba(var(--accent-amber-rgb), 0.1);
   color: var(--accent-amber);
 }
 
 .timeline-log-panel .log-level-error {
-  background: rgba(255, 77, 106, 0.1);
+  background: rgba(var(--accent-red-rgb), 0.1);
   color: var(--accent-red);
 }
 
@@ -696,6 +729,6 @@ select {
 }
 
 ::selection {
-  background: rgba(0, 212, 255, 0.28);
+  background: rgba(var(--accent-cyan-rgb), 0.28);
   color: var(--text-primary);
 }

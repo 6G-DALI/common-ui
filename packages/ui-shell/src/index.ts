@@ -8,6 +8,7 @@
 
 export { AppShell } from './components/AppShell'
 export { ExternalToolLinks } from './components/ExternalToolLinks'
+export { ThemeToggle } from './components/ThemeToggle'
 export { UserLabel } from './components/UserLabel'
 
 export {

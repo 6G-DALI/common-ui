@@ -15,12 +15,12 @@
   0%,
   100% {
     opacity: 0.65;
-    box-shadow: 0 0 0 rgba(0, 212, 255, 0);
+    box-shadow: 0 0 0 rgba(var(--accent-cyan-rgb), 0);
   }
 
   50% {
     opacity: 1;
-    box-shadow: 0 0 12px rgba(0, 212, 255, 0.35);
+    box-shadow: 0 0 12px rgba(var(--accent-cyan-rgb), 0.35);
   }
 }
 
@@ -33,12 +33,12 @@
   0%,
   100% {
     opacity: 0.7;
-    box-shadow: 0 0 0 rgba(255, 179, 64, 0);
+    box-shadow: 0 0 0 rgba(var(--accent-amber-rgb), 0);
   }
 
   50% {
     opacity: 1;
-    box-shadow: 0 0 12px rgba(255, 179, 64, 0.32);
+    box-shadow: 0 0 12px rgba(var(--accent-amber-rgb), 0.32);
   }
 }
 
