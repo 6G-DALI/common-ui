@@ -84,7 +84,7 @@ export interface ExternalTool {
 }
 
 export interface AppShellProps<V extends string = string> {
-  /** Sidebar brand text, e.g. `<>6G-<span className="dali-accent">DALI</span> DataOps</>`. */
+  /** Sidebar brand, e.g. `<BrandLogo product="DataOps" />` (the 6G-DALI logo and the product's name). */
   brand: ReactNode
   /** Where the brand link goes. Defaults to the first routable sidebar entry. */
   homeView?: V

@@ -26,6 +26,7 @@
     "./base.css": "./base.css",
     "./fonts.css": "./fonts.css",
     "./shell.css": "./shell.css",
+    "./assets/*": "./assets/*",
     "./theme.js": {
       "types": "./theme.d.ts",
       "default": "./theme.js"
@@ -34,6 +35,7 @@
   },
   "files": [
     "*.css",
+    "assets",
     "theme.js",
     "theme.d.ts"
   ],

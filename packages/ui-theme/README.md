@@ -36,6 +36,7 @@ must come after them; your app's styles come after the theme.
 | `@6g-dali/ui-theme/fonts.css` | the self-hosted `@fontsource` faces (§5.1) |
 | `@6g-dali/ui-theme/shell.css` | app-shell styling; imported for you by `@6g-dali/ui-shell` |
 | `/tokens.css`, `/theme.css`, `/ui.css`, `/animations.css`, `/base.css` | the individual layers, for a consumer that wants only some |
+| `@6g-dali/ui-theme/assets/*` | the brand files: `logo.svg` (black letters, for the light theme), `logo-dark.svg` (white letters, for the dark theme), `favicon.svg` (switches with the browser's colour scheme), `favicon.png` and `apple-touch-icon.png`. The sidebar logo (`.brand-logo`) uses the two logos itself; an app copies the favicons into its `public/` folder, since a favicon is requested by the browser and not by the bundle. The master artwork is `DALI-01.svg` in the project-6gdali-management repo. |
 
 `fonts.css` is separate so a front end that already self-hosts these faces does
 not ship a second copy. `shell.css` is separate so an app that does not use the

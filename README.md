@@ -105,10 +105,10 @@ single sign-on session work across the suite.
 builds a multi-level breadcrumb from `dagId`/`runId`/`taskId`:
 
 ```tsx
-import { AppShell, daliTools, portalAccountUrl, usernameOf } from '@6g-dali/ui-shell'
+import { AppShell, BrandLogo, daliTools, portalAccountUrl, usernameOf } from '@6g-dali/ui-shell'
 
 <AppShell<View>
-  brand={<>6G-<span className="dali-accent">DALI</span> DataOps</>}
+  brand={<BrandLogo product="DataOps" />}
   homeView="home"
   nav={NAV_ITEMS}
   activeView={activeTopView}
@@ -131,7 +131,7 @@ import { AppShell, daliTools, portalAccountUrl, usernameOf } from '@6g-dali/ui-s
 
 ```tsx
 <AppShell<View>
-  brand={<>6G-<span className="dali-accent">DALI</span> Portal</>}
+  brand={<BrandLogo product="Portal" />}
   homeView="overview"
   nav={NAV_ITEMS}
   activeView={view}

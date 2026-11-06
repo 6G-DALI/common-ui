@@ -7,6 +7,8 @@
  */
 
 export { AppShell } from './components/AppShell'
+export { BrandLogo } from './components/BrandLogo'
+export type { BrandLogoProps } from './components/BrandLogo'
 export { ExternalToolLinks } from './components/ExternalToolLinks'
 export { ThemeToggle } from './components/ThemeToggle'
 export { UserLabel } from './components/UserLabel'

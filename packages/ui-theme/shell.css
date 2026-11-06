@@ -170,3 +170,41 @@
 .dali-theme-toggle-input:focus-visible ~ .dali-theme-toggle-thumb {
   box-shadow: var(--shadow-focus);
 }
+
+/* The 6G-DALI logo in the sidebar brand slot, rendered by <BrandLogo /> from @6g-dali/ui-shell. Dark is the suite's
+   default theme, so the logo with white letters is the default and the one with black letters is for the light theme
+   (the attribute @6g-dali/ui-theme/theme.js writes). The wordmark is an image, so the element carries role="img" and
+   an aria-label. */
+.brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+/* The size is under :where() so it has no specificity: an app that shows the logo larger (a landing page) sets its own
+   width and height with one class and wins whatever order the bundler puts the stylesheets in. */
+:where(.brand-logo) {
+  display: inline-block;
+  flex: none;
+  height: 2rem;
+  aspect-ratio: 596 / 216;
+}
+
+.brand-logo {
+  background: url('./assets/logo-dark.svg') center / contain no-repeat;
+}
+
+[data-theme="light"] .brand-logo {
+  background-image: url('./assets/logo.svg');
+}
+
+/* The product the app is ("DataOps", "Portal"), set apart from the logo by a rule. */
+.brand-product {
+  padding-left: 0.65rem;
+  border-left: 1px solid var(--border);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
