@@ -9,6 +9,8 @@
 export { AppShell } from './components/AppShell'
 export { BrandLogo } from './components/BrandLogo'
 export type { BrandLogoProps } from './components/BrandLogo'
+export { formatDate, formatDateTime, formatTime } from './format'
+export type { DateInput, FormatOptions } from './format'
 export { ExternalToolLinks } from './components/ExternalToolLinks'
 export { ThemeToggle } from './components/ThemeToggle'
 export { UserLabel } from './components/UserLabel'

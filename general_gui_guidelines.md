@@ -321,6 +321,25 @@ Use for:
 - Avoid using monospace for long paragraphs.
 - Use a maximum body line length of approximately 75 characters where possible.
 
+### 5.4 Dates and times
+
+> **As implemented:** `formatDateTime`, `formatDate` and `formatTime` from
+> `@6g-dali/ui-shell`. An application calls these and does not format dates
+> itself.
+
+- Show dates and times in ISO 8601 order, in UTC: `2026-11-06 10:52:50 UTC`.
+  One moment then reads the same for every user and matches what the services
+  store (`2026-11-06T10:52:50+00:00`).
+- Do not use the browser's locale or time zone (`toLocaleString`,
+  `toLocaleTimeString`, `Intl.DateTimeFormat` without a fixed zone).
+- A date without a time (`issued`, `modified`) is a calendar day: show
+  `2026-11-06` and never shift it by a time zone.
+- Dense places (log lines, chart axes, a column whose header says UTC) may drop
+  the ` UTC` suffix (`{ zone: false }`) and show milliseconds where they matter
+  (`{ millis: true }`).
+- Show an empty value as an em dash (`—`). Show a value that is not a date as
+  it came.
+
 ---
 
 ## 6. Layout System

@@ -157,6 +157,19 @@ serve a two-level portal and a five-level DAG/run/task trail.
 `portal-ui`'s `View` both stay string-literal unions instead of widening to
 `string` at the boundary.
 
+### Dates and times
+
+Show every date and time with `formatDateTime`, `formatDate` or `formatTime`
+from `@6g-dali/ui-shell`, not with `toLocaleString()`. They write ISO 8601 order
+in UTC, so one moment reads the same for every user (guidelines §5.4):
+
+```ts
+formatDateTime('2026-11-06T12:52:50+02:00')   // '2026-11-06 10:52:50 UTC'
+formatDate('2026-11-06')                      // '2026-11-06' (a calendar day, never shifted)
+formatTime(Date.now(), { zone: false })       // '10:52:50'
+formatDateTime(ts, { zone: false, millis: true })   // log lines: '2026-11-06 10:52:50.123'
+```
+
 ## Developing across repos
 
 The cost of three repos instead of a workspace: every shell change is
